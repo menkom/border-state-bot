@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+source .env
+
+docker rm border-state-bot-app
+
+docker build -t border-state-bot-app -f app/Dockerfile ../
+
+docker run -p 8080:8080 \
+           --env-file .env \
+           -e DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/${POSTGRES_DB} \
+           --name border-state-bot-app \
+           -d border-state-bot-app
