@@ -1,0 +1,5 @@
+server:
+  port: 8080
+telegram:
+  username: ${TELEGRAM_USERNAME:}
+  token: ${TELEGRAM_TOKEN:}

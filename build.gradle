@@ -1,0 +1,38 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
+plugins {
+    id 'org.springframework.boot' version '2.7.9'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'java'
+}
+
+group 'info.mastera'
+version '1.0-SNAPSHOT'
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'org.telegram:telegrambots-spring-boot-starter:6.5.0'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework:spring-aspects'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    systemProperty "file.encoding", "utf-8"
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
