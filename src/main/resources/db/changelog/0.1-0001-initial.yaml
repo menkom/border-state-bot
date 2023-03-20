@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-subscription-table
+      author: Mike_Menko
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              tableName: subscription
+      changes:
+      - createTable:
+          tableName: subscription
+          columns:
+            - column:
+                name: id
+                type: bigserial
+                constraints:
+                  nullable: false
+                  primaryKey: true
+                  primaryKeyName: subscription_pk
+            - column:
+                name: reg_num
+                type: varchar(40)
+                constraints:
+                  nullable: false
+            - column:
+                name: chat_id
+                type: varchar(40)
+                constraints:
+                  nullable: false
+      - createIndex:
+          indexName: idx_subscription_reg_num
+          tableName: subscription
+          columns:
+            - column:
+                name: reg_num
