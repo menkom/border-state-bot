@@ -34,3 +34,9 @@ databaseChangeLog:
           columns:
             - column:
                 name: reg_num
+      - createIndex:
+          indexName: idx_subscription_chat_id
+          tableName: subscription
+          columns:
+            - column:
+                name: chat_id

@@ -1,6 +1,8 @@
 package info.mastera.telegrambot.bot;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.extensions.bots.commandbot.CommandBot;
@@ -13,7 +15,9 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Slf4j
@@ -54,10 +58,21 @@ public class BorderStateBot extends TelegramLongPollingBot implements CommandBot
     public void processNonCommandUpdate(Update update) {
         try {
             var message = update.getMessage();
-            execute(new SendMessage(message.getChatId().toString(), "Incorrect command " + message.getText()));
+            if (message != null) {
+                execute(new SendMessage(message.getChatId().toString(), "Команда %s не существует".formatted(message.getText())));
+            }
         } catch (TelegramApiException e) {
             log.error("Error sending message to user.", e);
         }
+    }
+
+    @Retryable(
+            value = {TelegramApiException.class, TelegramApiRequestException.class},
+            maxAttemptsExpression = "${telegram.send-retries}",
+            backoff = @Backoff(delayExpression = "${telegram.send-retry-delay}")
+    )
+    public void sendMessageToChat(String chatId, @NotBlank String text) throws TelegramApiException {
+        execute(new SendMessage(chatId, text));
     }
 
     private void registerCommands(List<IBotCommand> commands) throws TelegramApiException {
@@ -65,6 +80,6 @@ public class BorderStateBot extends TelegramLongPollingBot implements CommandBot
         var botCommands = commands.stream()
                 .map(command -> new BotCommand(command.getCommandIdentifier(), command.getDescription()))
                 .toList();
-        execute(new SetMyCommands(botCommands, new BotCommandScopeDefault(), "en"));
+        execute(new SetMyCommands(botCommands, new BotCommandScopeDefault(), "ru"));
     }
 }

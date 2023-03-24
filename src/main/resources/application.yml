@@ -15,3 +15,5 @@ spring:
 telegram:
   username: ${TELEGRAM_USERNAME:}
   token: ${TELEGRAM_TOKEN:}
+  send-retries: ${TELEGRAM_SEND_RETRIES:3}
+  send-retry-delay: ${TELEGRAM_SEND_RETRY_DELAY:5000}
