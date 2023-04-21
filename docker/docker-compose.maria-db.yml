@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: jbergstroem/mariadb-alpine:10.6.12
+    container_name: border-state-collector-maria-db
+    env_file:
+      - ./.mariadb.env
+    ports:
+      - '3306:3306'
+    restart: on-failure
+    volumes:
+      - border-state-collector-maria-db:/var/lib/mysql
+
+volumes:
+  border-state-collector-maria-db:

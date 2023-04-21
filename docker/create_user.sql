@@ -1,0 +1,10 @@
+CREATE USER 'border_state_bot_db_user'@'%';
+GRANT Alter ON border_state_bot_db.* TO 'border_state_bot_db_user'@'%';
+GRANT Create ON border_state_bot_db.* TO 'border_state_bot_db_user'@'%';
+GRANT Delete ON border_state_bot_db.* TO 'border_state_bot_db_user'@'%';
+GRANT Index ON border_state_bot_db.* TO 'border_state_bot_db_user'@'%';
+GRANT Insert ON border_state_bot_db.* TO 'border_state_bot_db_user'@'%';
+GRANT References ON border_state_bot_db.* TO 'border_state_bot_db_user'@'%';
+GRANT Select ON border_state_bot_db.* TO 'border_state_bot_db_user'@'%';
+GRANT Update ON border_state_bot_db.* TO 'border_state_bot_db_user'@'%';
+GRANT Lock tables ON border_state_bot_db.* TO 'border_state_bot_db_user'@'%';
