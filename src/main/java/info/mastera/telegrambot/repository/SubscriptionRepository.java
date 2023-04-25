@@ -9,5 +9,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
 
     Subscription findByChatId(String chatId);
 
+    boolean deleteByChatId(String chatId);
+
     List<Subscription> findByRegNum(String regNum);
 }
