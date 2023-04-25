@@ -1,13 +1,12 @@
 package info.mastera.telegrambot.service;
 
-import info.mastera.telegrambot.TransferChangeStateMapper;
-import info.mastera.telegrambot.bot.BorderStateBot;
-import info.mastera.telegrambot.controller.dto.TransferChangeState;
+import info.mastera.telegrambot.converter.CyrillicConverter;
+import info.mastera.telegrambot.model.Subscription;
 import info.mastera.telegrambot.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -15,19 +14,22 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository;
-    private final BorderStateBot borderStateBot;
-    private final TransferChangeStateMapper transferChangeStateMapper;
+    private final CyrillicConverter cyrillicConverter;
 
-    public void transmitMessage(TransferChangeState transferChangeState) {
-        subscriptionRepository.findByRegNum(transferChangeState.regNum().toUpperCase())
-                .forEach(subscription -> sendInfo(subscription.getChatId(), transferChangeState));
+    @Transactional
+    public void deleteByChatId(String chatId) {
+        subscriptionRepository.deleteByChatId(chatId);
     }
 
-    private void sendInfo(String chatId, TransferChangeState transferChangeState) {
-        try {
-            borderStateBot.sendMessageToChat(chatId, transferChangeStateMapper.convert(transferChangeState));
-        } catch (TelegramApiException e) {
-            log.error("Error on user informing chatId %s with regNum %s".formatted(chatId, transferChangeState.regNum()), e);
-        }
+    public void save(Long chatId, String argument) {
+        subscriptionRepository.save(getSubscription(chatId, argument));
+    }
+
+    private Subscription getSubscription(Long chatId, String argument) {
+        var subscription = subscriptionRepository.findByChatId(chatId.toString());
+        return new Subscription()
+                .setId(subscription == null ? null : subscription.getId())
+                .setChatId(chatId.toString())
+                .setRegNum(cyrillicConverter.convertWord(argument).toUpperCase());
     }
 }

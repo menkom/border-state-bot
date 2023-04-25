@@ -1,7 +1,7 @@
 package info.mastera.telegrambot.controller;
 
 import info.mastera.telegrambot.controller.dto.TransferChangeState;
-import info.mastera.telegrambot.service.SubscriptionService;
+import info.mastera.telegrambot.service.TransmitterService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,11 +17,11 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class WebhookController {
 
-    private final SubscriptionService subscriptionService;
+    private final TransmitterService transmitterService;
 
     @ResponseStatus(HttpStatus.ACCEPTED)
     @PostMapping
     public void transmit(@RequestBody @Valid TransferChangeState state) {
-        subscriptionService.transmitMessage(state);
+        transmitterService.transmitMessage(state);
     }
 }

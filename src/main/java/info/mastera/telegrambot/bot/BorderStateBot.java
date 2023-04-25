@@ -1,8 +1,6 @@
 package info.mastera.telegrambot.bot;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.extensions.bots.commandbot.CommandBot;
@@ -15,9 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
-import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Slf4j
@@ -64,15 +60,6 @@ public class BorderStateBot extends TelegramLongPollingBot implements CommandBot
         } catch (TelegramApiException e) {
             log.error("Error sending message to user.", e);
         }
-    }
-
-    @Retryable(
-            value = {TelegramApiException.class, TelegramApiRequestException.class},
-            maxAttemptsExpression = "${telegram.send-retries}",
-            backoff = @Backoff(delayExpression = "${telegram.send-retry-delay}")
-    )
-    public void sendMessageToChat(String chatId, @NotBlank String text) throws TelegramApiException {
-        execute(new SendMessage(chatId, text));
     }
 
     private void registerCommands(List<IBotCommand> commands) throws TelegramApiException {
