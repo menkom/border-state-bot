@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  border-state-bot-app:
+    container_name: border-state-bot-app
+    image: menkomihail/border-state-bot-app:v1.0.1
+    env_file:
+      - .bot.env
