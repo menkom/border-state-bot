@@ -1,15 +1,13 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
 plugins {
-    id 'org.springframework.boot' version '2.7.10'
-    id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.springframework.boot' version '3.4.5'
+    id 'io.spring.dependency-management' version '1.1.7'
     id 'java'
 }
 
 group 'info.mastera'
 version '1.0-SNAPSHOT'
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
 
 repositories {
     mavenCentral()
@@ -19,8 +17,12 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    implementation 'org.telegram:telegrambots-spring-boot-starter:6.5.0'
-    implementation 'org.telegram:telegrambotsextensions:6.5.0'
+    implementation ('org.telegram:telegrambots-spring-boot-starter:6.9.7.1'){
+        exclude group: 'org.glassfish.grizzly', module: 'grizzly-http-server'
+//        exclude group: 'org.springframework.boot', module: 'spring-boot'
+    }
+    implementation 'org.glassfish.grizzly:grizzly-http-server:4.1.0-M1'
+    implementation 'org.telegram:telegrambotsextensions:6.9.7.1'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.retry:spring-retry'
@@ -29,7 +31,7 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.liquibase:liquibase-core'
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.1.3'
+    runtimeOnly "org.mariadb.jdbc:mariadb-java-client:${mariadbClientVersion}"
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'com.vaadin.external.google', module: 'android-json'

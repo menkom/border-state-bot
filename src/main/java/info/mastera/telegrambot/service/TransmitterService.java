@@ -23,7 +23,7 @@ public class TransmitterService {
     private final SubscriptionRepository subscriptionRepository;
 
     @Retryable(
-            value = {TelegramApiException.class, TelegramApiRequestException.class},
+            retryFor = {TelegramApiException.class, TelegramApiRequestException.class},
             maxAttemptsExpression = "${telegram.send-retries}",
             backoff = @Backoff(delayExpression = "${telegram.send-retry-delay}")
     )
