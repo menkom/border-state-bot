@@ -10,6 +10,8 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.util.Arrays;
+
 @Slf4j
 @Component
 public class SubscribeCommand extends BotCommand {
@@ -24,9 +26,11 @@ public class SubscribeCommand extends BotCommand {
     @Override
     public void execute(AbsSender absSender, User user, Chat chat, String[] arguments) {
         try {
+            log.info("Chat {} trying to subscribe to {}.", chat.getId(), Arrays.toString(arguments));
             if (validArguments(absSender, chat.getId().toString(), arguments)) {
                 subscriptionService.save(chat.getId(), arguments[0]);
                 sendMessage(absSender, chat.getId().toString(), "Вы будете получать сообщения статуса для автомобильного номера %s".formatted(arguments[0]));
+                log.info("Chat {} subscribed to {}.", chat.getId(), arguments[0]);
             }
         } catch (TelegramApiException e) {
             log.error(this.getClass().getSimpleName(), e);
@@ -42,7 +46,7 @@ public class SubscribeCommand extends BotCommand {
             sendMessage(
                     absSender,
                     chatId,
-                    "Необходимо указать номер траспорта для отслеживания. Пример: %s 1234AA5".formatted(getCommandIdentifier())
+                    "Необходимо указать номер транспорта для отслеживания. Пример: %s 1234AA5".formatted(getCommandIdentifier())
             );
             return false;
         }

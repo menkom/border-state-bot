@@ -17,12 +17,9 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    implementation ('org.telegram:telegrambots-spring-boot-starter:6.9.7.1'){
-        exclude group: 'org.glassfish.grizzly', module: 'grizzly-http-server'
-//        exclude group: 'org.springframework.boot', module: 'spring-boot'
-    }
-    implementation 'org.glassfish.grizzly:grizzly-http-server:4.1.0-M1'
-    implementation 'org.telegram:telegrambotsextensions:6.9.7.1'
+
+    implementation "org.telegram:telegrambots-spring-boot-starter:$telegramVersion"
+    implementation "org.telegram:telegrambotsextensions:$telegramVersion"
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.retry:spring-retry'
