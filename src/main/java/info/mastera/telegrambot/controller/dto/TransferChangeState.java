@@ -1,8 +1,8 @@
 package info.mastera.telegrambot.controller.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.lang.NonNull;
 
+import javax.validation.constraints.NotBlank;
 
 public record TransferChangeState(
         @NotBlank String regNum,

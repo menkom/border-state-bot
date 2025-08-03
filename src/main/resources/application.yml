@@ -11,6 +11,8 @@ spring:
       ddl-auto: none
   liquibase:
     change-log: classpath:/db/changelog/master.yaml
+  main:
+    banner-mode: off
 telegram:
   username: ${TELEGRAM_USERNAME:}
   token: ${TELEGRAM_TOKEN:}
