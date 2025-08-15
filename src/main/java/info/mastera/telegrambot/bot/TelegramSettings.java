@@ -1,13 +1,12 @@
 package info.mastera.telegrambot.bot;
 
+import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
-
-import javax.validation.constraints.Pattern;
 
 @Setter
 @Getter

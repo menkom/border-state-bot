@@ -9,21 +9,21 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.bots.AbsSender;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TransmitterService {
 
-    private final AbsSender botSender;
+    private final TelegramClient telegramClient;
     private final TransferChangeStateMapper transferChangeStateMapper;
     private final SubscriptionRepository subscriptionRepository;
 
     @Retryable(
-            value = {TelegramApiException.class, TelegramApiRequestException.class},
+            retryFor = {TelegramApiException.class, TelegramApiRequestException.class},
             maxAttemptsExpression = "${telegram.send-retries}",
             backoff = @Backoff(delayExpression = "${telegram.send-retry-delay}")
     )
@@ -34,9 +34,9 @@ public class TransmitterService {
 
     private void sendInfo(String chatId, TransferChangeState transferChangeState) {
         try {
-            botSender.execute(new SendMessage(chatId, transferChangeStateMapper.convert(transferChangeState)));
+            telegramClient.execute(new SendMessage(chatId, transferChangeStateMapper.convert(transferChangeState)));
         } catch (TelegramApiException e) {
-            log.error("Error on user informing chatId %s with regNum %s".formatted(chatId, transferChangeState.regNum()), e);
+            log.error("Error on user informing chatId {} with regNum {}", chatId, transferChangeState.regNum(), e);
         }
     }
 }

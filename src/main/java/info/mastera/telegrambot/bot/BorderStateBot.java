@@ -2,60 +2,79 @@ package info.mastera.telegrambot.bot;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.extensions.bots.commandbot.CommandBot;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.CommandRegistry;
 import org.telegram.telegrambots.extensions.bots.commandbot.commands.IBotCommand;
+import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
+import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
+import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateConsumer;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.List;
 
 @Slf4j
 @Component
-public class BorderStateBot extends TelegramLongPollingBot implements CommandBot {
+public class BorderStateBot implements SpringLongPollingBot, LongPollingSingleThreadUpdateConsumer {
 
-    private final String botUsername;
-
+    private final TelegramClient telegramClient;
+    private final TelegramSettings telegramSettings;
     private final CommandRegistry commandRegistry;
 
-    public BorderStateBot(TelegramSettings telegramSettings, List<IBotCommand> commands) throws TelegramApiException {
-        super(telegramSettings.getToken());
-        this.botUsername = telegramSettings.getUsername();
-        this.commandRegistry = new CommandRegistry(true, this::getBotUsername);
+    public BorderStateBot(TelegramClient telegramClient,
+                          TelegramSettings telegramSettings,
+                          List<IBotCommand> commands) throws TelegramApiException {
+        this.telegramClient = telegramClient;
+        this.telegramSettings = telegramSettings;
+        this.commandRegistry = new CommandRegistry(telegramClient, true, telegramSettings::getUsername);
         registerCommands(commands);
     }
 
     @Override
-    public void onUpdateReceived(Update update) {
+    public String getBotToken() {
+        return telegramSettings.getToken();
+    }
+
+    @Override
+    public LongPollingUpdateConsumer getUpdatesConsumer() {
+        return this;
+    }
+
+    @Override
+    public void consume(Update update) {
         if (update.hasMessage()) {
-            Message message = update.getMessage();
-            if (message.isCommand() && !filter(message)) {
-                if (!commandRegistry.executeCommand(this, message)) {
+            var message = update.getMessage();
+            if (message.isCommand()) {
+                if (!commandRegistry.executeCommand(message)) {
                     processInvalidCommandUpdate(update);
                 }
-                return;
+            } else {
+                processNonCommandUpdate(update);
             }
         }
         processNonCommandUpdate(update);
     }
 
-    @Override
-    public String getBotUsername() {
-        return botUsername;
-    }
-
-    @Override
-    public void processNonCommandUpdate(Update update) {
+    private void processInvalidCommandUpdate(Update update) {
         try {
             var message = update.getMessage();
             if (message != null) {
-                execute(new SendMessage(message.getChatId().toString(), "Команда %s не существует".formatted(message.getText())));
+                telegramClient.execute(new SendMessage(message.getChatId().toString(), "Неправильная команда %s".formatted(message.getText())));
+            }
+        } catch (TelegramApiException e) {
+            log.error("Error sending message to user.", e);
+        }
+    }
+
+    private void processNonCommandUpdate(Update update) {
+        try {
+            var message = update.getMessage();
+            if (message != null) {
+                telegramClient.execute(new SendMessage(message.getChatId().toString(), "Команда %s не существует".formatted(message.getText())));
             }
         } catch (TelegramApiException e) {
             log.error("Error sending message to user.", e);
@@ -67,6 +86,6 @@ public class BorderStateBot extends TelegramLongPollingBot implements CommandBot
         var botCommands = commands.stream()
                 .map(command -> new BotCommand(command.getCommandIdentifier(), command.getDescription()))
                 .toList();
-        execute(new SetMyCommands(botCommands, new BotCommandScopeDefault(), "ru"));
+        telegramClient.execute(new SetMyCommands(botCommands, new BotCommandScopeDefault(), "ru"));
     }
 }
