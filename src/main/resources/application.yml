@@ -3,8 +3,8 @@ server:
 spring:
   datasource:
     url: ${DATASOURCE_URL:}
-    username: ${POSTGRES_USER:}
-    password: ${POSTGRES_PASSWORD:}
+    username: ${DATASOURCE_USER:}
+    password: ${DATASOURCE_PASSWORD:}
   jpa:
     show-sql: false
     hibernate:
