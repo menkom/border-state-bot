@@ -50,7 +50,14 @@ public class SubscribeCommand extends BotCommand {
             );
             return false;
         }
-        if (arguments.length != 1) {
+        if (arguments.length == 0) {
+            sendMessage(
+                    telegramClient,
+                    chatId,
+                    "К команде необходимо добавить номер автомобиля."
+            );
+            return false;
+        } else if (arguments.length > 1) {
             sendMessage(
                     telegramClient,
                     chatId,
