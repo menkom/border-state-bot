@@ -1,5 +1,6 @@
 server:
   port: 8080
+  address: 0.0.0.0 #to listen on all interfaces
 management:
   endpoints:
     web:
