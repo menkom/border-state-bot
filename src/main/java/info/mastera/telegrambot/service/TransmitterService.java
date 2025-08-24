@@ -21,6 +21,7 @@ public class TransmitterService {
     private final TelegramClient telegramClient;
     private final TransferChangeStateMapper transferChangeStateMapper;
     private final SubscriptionRepository subscriptionRepository;
+    private final SubscriptionService subscriptionService;
 
     @Retryable(
             retryFor = {TelegramApiException.class, TelegramApiRequestException.class},
@@ -35,6 +36,13 @@ public class TransmitterService {
     private void sendInfo(String chatId, TransferChangeState transferChangeState) {
         try {
             telegramClient.execute(new SendMessage(chatId, transferChangeStateMapper.convert(transferChangeState)));
+        } catch (TelegramApiRequestException e) {
+            if (e.getErrorCode() == 403) {
+                log.warn("User blocked the bot. chatId={}, regNum={}. System deleted subscription.", chatId, transferChangeState.regNum());
+                subscriptionService.deleteByChatId(chatId);
+            } else {
+                log.error("Telegram API error on chatId {} regNum {}", chatId, transferChangeState.regNum(), e);
+            }
         } catch (TelegramApiException e) {
             log.error("Error on user informing chatId {} with regNum {}", chatId, transferChangeState.regNum(), e);
         }
